@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="andanyoung.springboot.shardingjdbc.mapper.TOrderMapper">
+
+    <resultMap id="orderResult" type="andanyoung.springboot.shardingjdbc.domain.TOrder">
+        <id property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="orderNo" column="order_no" jdbcType="VARCHAR"/>
+        <result property="createName" column="create_name" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+    </resultMap>
+
+
+    <select id="selectOrderAndItemByOrderId" parameterType="andanyoung.springboot.shardingjdbc.domain.TOrder"
+            resultMap="orderResult">
+        SELECT o.order_id, o.order_no, o.create_name,o.user_id , o.price, i.item_id, i.item_name FROM
+        t_order o
+        LEFT JOIN t_order_item i ON o.order_no = i.order_no
+        <where>
+            <if test="orderNo!=null">
+                o.order_no = #{order_no}
+            </if>
+
+            <if test="userId!=null">
+                o.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+</sql>
+        </mapper>

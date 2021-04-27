@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="andanyoung.springboot.shardingjdbc.mapper.TOrderItem0Mapper">
+
+    <resultMap id="BaseResultMap" type="andanyoung.springboot.shardingjdbc..TOrderItem0">
+            <id property="itemId" column="item_id" jdbcType="BIGINT"/>
+            <result property="orderNo" column="order_no" jdbcType="VARCHAR"/>
+            <result property="itemName" column="item_name" jdbcType="VARCHAR"/>
+            <result property="price" column="price" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        item_id,order_no,item_name,
+        price
+    </sql>
+</mapper>
