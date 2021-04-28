@@ -26,7 +26,7 @@ class TOrderServiceTest {
       order.setOrderNo("A000" + i);
       order.setCreateName("订单 " + i);
       order.setPrice(new BigDecimal("" + i));
-      int id = orderMapper.insert(order);
+      orderMapper.insert(order);
 
       System.out.println(order);
 
@@ -36,5 +36,21 @@ class TOrderServiceTest {
       orderItem.setPrice(new BigDecimal("" + i));
       orderItemMapper.insert(orderItem);
     }
+  }
+
+  @Test
+  public void masterSlaveTest() {
+
+    TOrder tOrder = orderMapper.selectById(1387233602040721410L);
+    System.out.println(tOrder);
+
+    TOrder order = new TOrder();
+    order.setOrderId(1387233602040721410L);
+    order.setCreateName("订单 主库master update");
+    order.setPrice(new BigDecimal("2.8"));
+    orderMapper.updateById(order);
+
+    tOrder = orderMapper.selectById(1387233602040721410L);
+    System.out.println(tOrder);
   }
 }
