@@ -26,11 +26,12 @@ class TOrderServiceTest {
       order.setOrderNo("A000" + i);
       order.setCreateName("订单 " + i);
       order.setPrice(new BigDecimal("" + i));
-      orderMapper.insert(order);
+      int id = orderMapper.insert(order);
+
+      System.out.println(order);
 
       TOrderItem orderItem = new TOrderItem();
       orderItem.setOrderNo(order.getOrderId().toString());
-      orderItem.setOrderNo("A000" + i);
       orderItem.setItemName("服务项目" + i);
       orderItem.setPrice(new BigDecimal("" + i));
       orderItemMapper.insert(orderItem);

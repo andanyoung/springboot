@@ -1,12 +1,14 @@
 package andanyoung.springboot.shardingjdbc.domain;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 /** @TableName t_order_0 */
 public class TOrder implements Serializable {
   /** */
-  private Long orderId;
+  @TableId private Long orderId;
 
   /** */
   private String orderNo;
