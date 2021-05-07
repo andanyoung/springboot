@@ -387,8 +387,12 @@ total = PageHelper.count(()->userMapper.selectLike(user));
 
 ### 官网
 
-https://github.com/pagehelper/Mybatis-PageHelper
+- https://github.com/pagehelper/Mybatis-PageHelper
 
 使用文档：
 
-https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/HowToUse.md
+- https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/HowToUse.md
+
+mybatis教程 ：
+
+- https://www.w3cschool.cn/mybatis/
