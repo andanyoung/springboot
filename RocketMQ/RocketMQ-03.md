@@ -4,7 +4,7 @@
 
 分布式队列因为有高可靠性的要求，所以数据要进行持久化存储。
 
-![](img/消息存储方式.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/消息存储方式.png)
 
 1. 消息生成者发送消息
 2. MQ收到消息，将消息进行持久化，在存储中新增一条记录
@@ -19,13 +19,13 @@
 
 Apache下开源的另外一款MQ—ActiveMQ（默认采用的KahaDB做消息存储）可选用JDBC的方式来做消息持久化，通过简单的xml配置信息即可实现JDBC消息存储。由于，普通关系型数据库（如Mysql）在单表数据量达到千万级别的情况下，其IO读写性能往往会出现瓶颈。在可靠性方面，该种方案非常依赖DB，如果一旦DB出现故障，则MQ的消息就无法落盘存储会导致线上故障
 
-![](img/MySQL.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/MySQL.png)
 
 - 文件系统
 
   目前业界较为常用的几款产品（RocketMQ/Kafka/RabbitMQ）均采用的是消息刷盘至所部署虚拟机/物理机的文件系统来做持久化（刷盘一般可以分为异步刷盘和同步刷盘两种模式）。消息刷盘为消息存储提供了一种高效率、高可靠性和高性能的数据持久化方式。除非部署MQ机器本身或是本地磁盘挂了，否则一般是不会出现无法持久化的故障问题。
 
-  ![](img/磁盘.png)
+  ![](https://gitee.com/andanyoung/blog-img/raw/master/img1/磁盘.png)
 
 
 ###1.1.2 性能对比
@@ -55,7 +55,7 @@ Linux操作系统分为【用户态】和【内核态】，文件操作、网络
 3. 然后从用户态 内存复制到网络驱动的内核态内存；
 4. 最后是从网络驱动的内核态内存复 制到网卡中进行传输。
 
-![](img/文件操作和网络操作.png)通过使用mmap的方式，可以省去向用户态的内存复制，提高速度。这种机制在Java中是通过MappedByteBuffer实现的
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/文件操作和网络操作.png)通过使用mmap的方式，可以省去向用户态的内存复制，提高速度。这种机制在Java中是通过MappedByteBuffer实现的
 
 RocketMQ充分利用了上述特性，也就是所谓的“零拷贝”技术，提高消息存盘和网络发送的速度。
 
@@ -65,7 +65,7 @@ RocketMQ充分利用了上述特性，也就是所谓的“零拷贝”技术，
 
 RocketMQ消息的存储是由ConsumeQueue和CommitLog配合完成 的，消息真正的物理存储文件是CommitLog，ConsumeQueue是消息的逻辑队列，类似数据库的索引文件，存储的是指向物理存储的地址。每 个Topic下的每个Message Queue都有一个对应的ConsumeQueue文件。
 
-![](img/消息存储结构.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/消息存储结构.png)
 
 * CommitLog：存储消息的元数据
 * ConsumerQueue：存储消息在CommitLog的索引
@@ -75,7 +75,7 @@ RocketMQ消息的存储是由ConsumeQueue和CommitLog配合完成 的，消息�
 
 RocketMQ的消息是存储到磁盘上的，这样既能保证断电后恢复， 又可以让存储的消息量超出内存的限制。RocketMQ为了提高性能，会尽可能地保证磁盘的顺序写。消息在通过Producer写入RocketMQ的时 候，有两种写磁盘方式，分布式同步刷盘和异步刷盘。
 
-![](img/同步刷盘和异步刷盘.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/同步刷盘和异步刷盘.png)
 
 #### 1）同步刷盘
 
@@ -91,7 +91,7 @@ RocketMQ的消息是存储到磁盘上的，这样既能保证断电后恢复，
 
 ## 1.2 高可用性机制
 
-![](img/RocketMQ角色.jpg)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/RocketMQ角色.jpg)
 
 RocketMQ分布式集群是通过Master和Slave的配合达到高可用性的。
 
@@ -107,29 +107,29 @@ Master角色的Broker支持读和写，Slave角色的Broker仅支持读，也就
 
 在创建Topic的时候，把Topic的多个Message Queue创建在多个Broker组上（相同Broker名称，不同 brokerId的机器组成一个Broker组），这样当一个Broker组的Master不可 用后，其他组的Master仍然可用，Producer仍然可以发送消息。 RocketMQ目前还不支持把Slave自动转成Master，如果机器资源不足， 需要把Slave转成Master，则要手动停止Slave角色的Broker，更改配置文 件，用新的配置文件启动Broker。
 
-![](img/消息发送高可用设计.jpg)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/消息发送高可用设计.jpg)
 
 ### 1.2.3 消息主从复制
 
 如果一个Broker组有Master和Slave，消息需要从Master复制到Slave 上，有同步和异步两种复制方式。
 
-####1）同步复制
+#### 1）同步复制
 
 同步复制方式是等Master和Slave均写 成功后才反馈给客户端写成功状态；
 
 在同步复制方式下，如果Master出故障， Slave上有全部的备份数据，容易恢复，但是同步复制会增大数据写入 延迟，降低系统吞吐量。
 
-####2）异步复制 
+#### 2）异步复制 
 
 异步复制方式是只要Master写成功 即可反馈给客户端写成功状态。
 
 在异步复制方式下，系统拥有较低的延迟和较高的吞吐量，但是如果Master出了故障，有些数据因为没有被写 入Slave，有可能会丢失；
 
-####3）配置
+#### 3）配置
 
 同步复制和异步复制是通过Broker配置文件里的brokerRole参数进行设置的，这个参数可以被设置成ASYNC_MASTER、 SYNC_MASTER、SLAVE三个值中的一个。
 
-####4）总结
+#### 4）总结
 
 ![](img/复制刷盘.png)
 
@@ -159,7 +159,7 @@ Producer端，每个实例在发消息的时候，默认会轮询所有的messag
 
 还有另外一种平均的算法是AllocateMessageQueueAveragelyByCircle，也是平均分摊每一条queue，只是以环状轮流分queue的形式，如下图：
 
-![](img/consumer负载均衡2.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/consumer负载均衡2.png)
 
 需要注意的是，集群模式下，queue都是只允许分配只一个实例，这是由于如果多个实例同时消费一个queue的消息，由于拉取哪些消息是consumer主动控制的，那样会导致同一个消息在不同的实例下被消费多次，所以算法上都是一个queue只分给一个consumer实例，一个consumer实例可以允许同时分到不同的queue。
 
@@ -173,7 +173,7 @@ Producer端，每个实例在发消息的时候，默认会轮询所有的messag
 
 在实现上，其中一个不同就是在consumer分配queue的时候，所有consumer都分到所有的queue。
 
-![](img/consumer负载均衡3.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/consumer负载均衡3.png)
 
 ## 1.4 消息重试
 
@@ -310,11 +310,11 @@ public class MessageListenerImpl implements MessageListener {
 
 1. 在控制台查询出现死信队列的主题信息
 
-![](img/死信队列主题.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/死信队列主题.png)
 
 2. 在消息界面根据主题查询死信消息
 
-![](img/死信队列主题2.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/死信队列主题2.png)
 
 3. 选择重新发送消息
 
@@ -375,7 +375,7 @@ consumer.subscribe("ons_test", "*", new MessageListener() {
 
 从官方仓库 <https://github.com/apache/rocketmq> `clone`或者`download`源码。
 
-![](img/源码1.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码1.png)
 
 **源码目录结构：**
 
@@ -401,7 +401,7 @@ consumer.subscribe("ons_test", "*", new MessageListener() {
 
 ###2.1.2 导入IDEA
 
-![](img/源码2.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码2.png)
 
 **执行安装**
 
@@ -419,13 +419,13 @@ clean install -Dmaven.test.skip=true
 
 * 展开namesrv模块，右键NamesrvStartup.java
 
-![](img/源码3.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码3.png)
 
 * 配置**ROCKETMQ_HOME**
 
-![](img/源码4.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码4.png)
 
-![](img/源码5.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码5.png)
 
 * 重新启动
 
@@ -470,9 +470,9 @@ abortFile=E:\\RocketMQ\\data\\rocketmq\\dataDir\\abort
 
 ![](img/源码7.png)
 
-![](img/源码8.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/源码8.png)
 
-####3）发送消息
+#### 3）发送消息
 
 * 进入example模块的`org.apache.rocketmq.example.quickstart`
 * 指定Namesrv地址
@@ -504,7 +504,7 @@ consumer.setNamesrvAddr("127.0.0.1:9876");
 
 NameServer就是为了解决以上问题设计的。
 
-![](img/RocketMQ角色.jpg)
+![](F:\workspace\github\springboot\RocketMQ\img\RocketMQ角色.jpg)
 
 
 
@@ -514,7 +514,7 @@ NameServer本身的高可用是通过部署多台NameServer来实现，但彼此
 
 ### 2.2.2 启动流程
 
-![](img/NameServer启动流程.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/NameServer启动流程.png)
 
 启动类：`org.apache.rocketmq.namesrv.NamesrvStartup`
 
@@ -676,7 +676,7 @@ private final HashMap<String/* brokerAddr */, BrokerLiveInfo> brokerLiveTable;
 private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
 ```
 
-![](img/路由实体图.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/路由实体图.png)
 
 **topicQueueTable：**Topic消息队列路由信息，消息发送时根据路由表进行负载均衡
 
@@ -690,15 +690,15 @@ private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> f
 
 > RocketMQ基于定于发布机制，一个Topic拥有多个消息队列，一个Broker为每一个主题创建4个读队列和4个写队列。多个Broker组成一个集群，集群由相同的多台Broker组成Master-Slave架构，brokerId为0代表Master，大于0为Slave。BrokerLiveInfo中的lastUpdateTimestamp存储上次收到Broker心跳包的时间。
 
-![](img/实体数据实例.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/实体数据实例.png)
 
-![](img/实体数据实例2.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/实体数据实例2.png)
 
 #### 2.2.3.2 路由注册
 
-#####1）发送心跳包
+##### 1）发送心跳包
 
-![](img/路由注册.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/路由注册.png)
 
 RocketMQ路由注册是通过Broker与NameServer的心跳功能实现的。Broker启动时向集群中所有的NameServer发送心跳信息，每隔30s向集群中所有NameServer发送心跳包，NameServer收到心跳包时会更新brokerLiveTable缓存中BrokerLiveInfo的lastUpdataTimeStamp信息，然后NameServer每隔10s扫描brokerLiveTable，如果连续120S没有收到心跳包，NameServer将移除Broker的路由信息同时关闭Socket连接。
 
@@ -791,7 +791,7 @@ RemotingCommand response = this.remotingClient.invokeSync(namesrvAddr, request, 
 
 ##### 2）处理心跳包
 
-![](img/NameServer处理路由注册.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/NameServer处理路由注册.png)
 
 `org.apache.rocketmq.namesrv.processor.DefaultRequestProcessor`网路处理类解析请求类型，如果请求类型是为***REGISTER_BROKER***，则将请求转发到`RouteInfoManager#regiesterBroker`
 
@@ -963,7 +963,7 @@ if (MixAll.MASTER_ID != brokerId) {
 
 这两种方式路由删除的方法都是一样的，就是从相关路由表中删除与该broker相关的信息。
 
-![](img/路由删除.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/路由删除.png)
 
 ***代码：NamesrvController#initialize***
 
@@ -1152,19 +1152,19 @@ public RemotingCommand getRouteInfoByTopic(ChannelHandlerContext ctx,
 
 ### 2.2.4 小结
 
-![](img/NameServer小结.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/NameServer小结.png)
 
 ## 2.3 Producer
 
 消息生产者的代码都在client模块中，相对于RocketMQ来讲，消息生产者就是客户端，也是消息的提供者。
 
-![](img/DefaultMQProducer类图.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/DefaultMQProducer类图.png)
 
-###2.3.1 方法和属性
+### 2.3.1 方法和属性
 
-####1）主要方法介绍
+#### 1）主要方法介绍
 
-![](img/MQAdmin.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/MQAdmin.png)
 
 * ```java
   //创建主题
@@ -1203,7 +1203,7 @@ public RemotingCommand getRouteInfoByTopic(ChannelHandlerContext ctx,
   MessageExt viewMessage(String topic,String msgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException;
   ```
 
-![](img/MQProducer.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/MQProducer.png)
 
 * ```java
   //启动
@@ -1273,9 +1273,9 @@ public RemotingCommand getRouteInfoByTopic(ChannelHandlerContext ctx,
   SendResult send(final Collection<Message> msgs) throws MQClientException, RemotingException, MQBrokerException,InterruptedException;
   ```
 
-####2）属性介绍
+#### 2）属性介绍
 
-![](img/DefaultMQProducer属性.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/DefaultMQProducer属性.png)
 
 ```java
 producerGroup：生产者所属组
@@ -1291,7 +1291,7 @@ maxMessageSize：允许发送的最大消息长度，默认为4M
 
 ### 2.3.2 启动流程
 
-![](img/生产者启动流程.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/生产者启动流程.png)
 
 ***代码：DefaultMQProducerImpl#start***
 
@@ -1360,7 +1360,7 @@ if (startFactory) {
 
 ### 2.3.3 消息发送
 
-![](img/消息发送.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/消息发送.png)
 
 ***代码：DefaultMQProducerImpl#send(Message msg)***
 
@@ -1417,7 +1417,7 @@ public static void checkMessage(Message msg, DefaultMQProducer defaultMQProducer
 }
 ```
 
-####2）查找路由
+#### 2）查找路由
 
 ***代码：DefaultMQProducerImpl#tryToFindTopicPublishInfo***
 
@@ -1443,7 +1443,7 @@ private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
 }
 ```
 
-![](img/Topic路由信息.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/Topic路由信息.png)
 
 ***代码：TopicPublishInfo***
 
@@ -1668,7 +1668,7 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
 }
 ```
 
-![](img/Broker故障延迟机制核心类.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/Broker故障延迟机制核心类.png)
 
 * 延迟机制接口规范
 
@@ -1788,7 +1788,7 @@ public void updateFaultItem(final String name, final long currentLatency, final 
 }
 ```
 
-####4）发送消息
+#### 4）发送消息
 
 消息发送API核心入口***DefaultMQProducerImpl#sendKernelImpl***
 
@@ -1991,7 +1991,7 @@ if (this.hasSendMessageHook()) {
 
 ### 2.3.4 批量消息发送
 
-![](img/发送批量消息.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/发送批量消息.png)
 
 批量消息发送是将同一个主题的多条消息一起打包发送到消息服务端，减少网络调用次数，提高网络传输效率。当然，并不是在同一批次中发送的消息数量越多越好，其判断依据是单条消息的长度，如果单条消息内容比较长，则打包多条消息发送会影响其他线程发送消息的响应时间，并且单批次消息总长度不能超过DefaultMQProducer#maxMessageSize。
 
@@ -2034,9 +2034,9 @@ private MessageBatch batch(Collection<Message> msgs) throws MQClientException {
 
 ## 2.4 消息存储
 
-###2.4.1 消息存储核心类
+### 2.4.1 消息存储核心类
 
-![](img/DefaultMessageStore.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/DefaultMessageStore.png)
 
 ```java
 private final MessageStoreConfig messageStoreConfig;	//消息配置属性
@@ -2061,7 +2061,7 @@ private final LinkedList<CommitLogDispatcher> dispatcherList;	//CommitLog文件�
 
 ### 2.4.2 消息存储流程
 
-![](img/消息存储流程.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/消息存储流程.png)
 
 ***消息存储入口：DefaultMessageStore#putMessage***
 
@@ -2290,9 +2290,9 @@ handleHA(result, putMessageResult, msg);
 
 RocketMQ通过使用内存映射文件提高IO访问性能，无论是CommitLog、ConsumerQueue还是IndexFile，单个文件都被设计为固定长度，如果一个文件写满以后再创建一个新文件，文件名就为该文件第一条消息对应的全局物理偏移量。
 
-####1）MappedFileQueue
+#### 1）MappedFileQueue
 
-![](img/MappedFileQueue.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/MappedFileQueue.png)
 
 ```java
 String storePath;	//存储目录
@@ -2415,9 +2415,9 @@ public long getMaxWrotePosition() {
 }
 ```
 
-####2）MappedFile
+#### 2）MappedFile
 
-![](img/MappedFile.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/MappedFile.png)
 
 ```java
 int OS_PAGE_SIZE = 1024 * 4;		//操作系统每页大小,默认4K
@@ -2671,7 +2671,7 @@ public void shutdown(final long intervalForcibly) {
 
 短暂的存储池。RocketMQ单独创建一个MappedByteBuffer内存缓存池，用来临时存储数据，数据先写入该内存映射中，然后由commit线程定时将数据从该内存复制到与目标物理文件对应的内存映射中。RocketMQ引入该机制主要的原因是提供一种内存锁定，将当前堆外内存一直锁定在内存中，避免被进程将内存交换到磁盘。
 
-![](img/TransientStorePool.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/TransientStorePool.png)
 
 ```java
 private final int poolSize;		//availableBuffers个数
@@ -2700,9 +2700,9 @@ public void init() {
 
 消息消费队文件、消息属性索引文件都是基于CommitLog文件构建的，当消息生产者提交的消息存储在CommitLog文件中，ConsumerQueue、IndexFile需要及时更新，否则消息无法及时被消费，根据消息属性查找消息也会出现较大延迟。RocketMQ通过开启一个线程ReputMessageService来准实时转发CommitLog文件更新事件，相应的任务处理器根据转发的消息及时更新ConsumerQueue、IndexFile文件。
 
-![](img/消息存储结构.png)
+![](F:\workspace\github\springboot\RocketMQ\img\消息存储结构.png)
 
-![](img/构建消息消费队列和索引文件.png)
+![](https://gitee.com/andanyoung/blog-img/raw/master/img1/构建消息消费队列和索引文件.png)
 
 ***代码：DefaultMessageStore：start***
 
