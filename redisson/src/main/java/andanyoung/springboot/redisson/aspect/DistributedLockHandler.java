@@ -2,16 +2,23 @@ package andanyoung.springboot.redisson.aspect;
 
 import andanyoung.springboot.redisson.annotation.DistributedLock;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +36,9 @@ public class DistributedLockHandler {
     @Autowired
     RedissonClient redissonClient;
 
+    private static final LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private static final ExpressionParser elParser = new SpelExpressionParser();
+
     /**
      * 切面环绕通知
      *
@@ -41,7 +51,7 @@ public class DistributedLockHandler {
         log.debug("[开始]执行RedisLock环绕通知,获取Redis分布式锁开始");
 
         //获取超时时间并获取锁
-        RLock lock = getLock(distributedLock);
+        RLock lock = getLock(joinPoint, distributedLock);
         if (distributedLock.waitTimeOutSeconds() > 0) {
             boolean res = lock.tryLock(distributedLock.waitTimeOutSeconds(), distributedLock.expireSeconds(), TimeUnit.SECONDS);
             Assert.isTrue(res, "TRYLOCK WAIT TIMEOUT");
@@ -64,9 +74,9 @@ public class DistributedLockHandler {
      * @param distributedLock
      * @return
      */
-    private RLock getLock(DistributedLock distributedLock) {
+    private RLock getLock(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) {
 
-        String lockName = distributedLock.value();
+        String lockName = getDistributedLockKey(joinPoint, distributedLock);
         switch (distributedLock.lockModel()) {
             case FAIR:
                 //公平锁
@@ -84,5 +94,42 @@ public class DistributedLockHandler {
                 //可重入锁
                 return redissonClient.getLock(lockName);
         }
+    }
+
+
+    private String getDistributedLockKey(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) {
+        //得到被切面修饰的方法的参数列表
+        Object[] args = joinPoint.getArgs();
+        // 得到被代理的方法
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        return parseELKey(distributedLock.value(), method, args);
+    }
+
+    /**
+     * 使用EL 表达式解析key
+     *
+     * @param key
+     * @param method
+     * @param args
+     * @return
+     */
+    private String parseELKey(String key, Method method, Object[] args) {
+
+
+        if (StringUtils.isEmpty(key)) {
+            return null;
+        }
+
+        //获取被拦截方法参数名列表(使用Spring支持类库)
+        String[] paraNameArr = localVariableTableParameterNameDiscoverer.getParameterNames(method);
+
+        //使用SPEL进行key的解析
+        //SPEL上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        //把方法参数放入SPEL上下文中
+        for (int i = 0; i < paraNameArr.length; i++) {
+            context.setVariable(paraNameArr[i], args[i]);
+        }
+        return elParser.parseExpression(key).getValue(context, String.class);
     }
 }

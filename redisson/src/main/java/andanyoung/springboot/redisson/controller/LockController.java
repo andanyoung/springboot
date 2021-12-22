@@ -65,4 +65,11 @@ public class LockController {
         Thread.sleep(10000);
         return "I get WRITE lock" + LocalDateTime.now();
     }
+
+    @GetMapping(value = "/el/{key}")
+    @DistributedLock("#lockKey")
+    public String el(@PathVariable("key") String lockKey) throws InterruptedException {
+        Thread.sleep(10000);
+        return "I get REENTRANT lock" + LocalDateTime.now();
+    }
 }
