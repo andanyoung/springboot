@@ -34,7 +34,11 @@ import java.util.concurrent.TimeUnit;
 public class DistributedLockHandler {
 
     @Autowired
-    RedissonClient redissonClient;
+    private RedissonClient redissonClient;
+    /**
+     * redis key 前缀
+     */
+    private static final String DISTRIBUTED_LOCK_PRE = "D_LOCK:";
 
     private static final LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private static final ExpressionParser elParser = new SpelExpressionParser();
@@ -102,7 +106,7 @@ public class DistributedLockHandler {
         Object[] args = joinPoint.getArgs();
         // 得到被代理的方法
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        return parseELKey(distributedLock.value(), method, args);
+        return DISTRIBUTED_LOCK_PRE + parseELKey(distributedLock.value(), method, args);
     }
 
     /**
