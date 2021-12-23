@@ -106,7 +106,9 @@ public class DistributedLockHandler {
         Object[] args = joinPoint.getArgs();
         // 得到被代理的方法
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        return DISTRIBUTED_LOCK_PRE + parseELKey(distributedLock.value(), method, args);
+        String parseElKey = parseELKey(distributedLock.value(), method, args);
+        Assert.isTrue(StringUtils.isNotEmpty(parseElKey), "DistributedLockKey is null");
+        return DISTRIBUTED_LOCK_PRE + parseElKey;
     }
 
     /**
