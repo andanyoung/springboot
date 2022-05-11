@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,9 @@ public class HttpRequest extends AbstractHttpRequest {
     protected MediaTypeEnum mediaTypeEnum;
 
     protected OkHttpClient httpClient;
+    @Getter
+    @Setter
+    protected String userAgent;
 
     public HttpRequest() {
         init();
@@ -41,6 +45,7 @@ public class HttpRequest extends AbstractHttpRequest {
         httpClient = builder.build();
         init();
     }
+
 
     @Override
     public OkHttpClient getHttpClient() {
@@ -57,7 +62,9 @@ public class HttpRequest extends AbstractHttpRequest {
 
     public void init() {
 
-        defaultHeaderMap.put(HttpHeaderKey.USER_AGENT, "OKHTTP");
+        if (StringUtils.isNotBlank(getUserAgent())) {
+            defaultHeaderMap.put(HttpHeaderKey.USER_AGENT, getUserAgent());
+        }
     }
 
     @Override

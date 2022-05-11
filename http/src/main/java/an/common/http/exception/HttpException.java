@@ -21,6 +21,11 @@ public class HttpException extends RuntimeException {
         super(message);
     }
 
+    public HttpException(String message, int code) {
+        super(message);
+        this.code = code;
+    }
+
     public HttpException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders, String responseBody) {
         super(message, throwable);
         this.code = code;

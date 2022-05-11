@@ -150,6 +150,9 @@ public abstract class AbstractHttpRequest {
                                 Object body,
                                 Map<String, Object> formParams,
                                 Map<String, Object> headerParams) {
+        if (!StringUtils.startsWithIgnoreCase(url, "http")) {
+            url = buildUrl(url, null, null);
+        }
 
         final Request.Builder reqBuilder = new Request.Builder().url(url);
         processHeaderParams(headerParams, reqBuilder);
