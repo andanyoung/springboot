@@ -3,12 +3,16 @@ package an.common.http;
 import an.common.http.core.Method;
 import an.common.http.core.Pair;
 import com.alibaba.fastjson.JSON;
+import lombok.Cleanup;
 import okhttp3.Call;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author andanyang
@@ -89,5 +93,43 @@ public class HttpUtil {
 
     public static String postForm(String url, Map<String, Object> formParams) {
         return (String) getHttpRequest().postForm(url, formParams, String.class);
+    }
+
+    public static String upload(String url, Map<String, Object> formParams) {
+        return (String) getHttpRequest().postFormData(url, formParams, String.class);
+    }
+
+    public static InputStream down(String url) {
+        HttpRequest httpRequest = getHttpRequest();
+        Call call = httpRequest.buildCall(url, Method.GET, null, null, null);
+        Response response = httpRequest.execute(call);
+        return Objects.requireNonNull(response.body()).byteStream();
+    }
+
+
+    public static void down(String url, String savePath) throws IOException {
+        InputStream in = down(url);
+
+        File file = new File(savePath);
+
+        boolean isFile = savePath.contains(".");
+        if (isFile) {
+            file.getParentFile().mkdirs();
+        } else {
+            file.mkdirs();
+        }
+
+        if (!isFile) {
+            String fName = StringUtils.substringBefore(url, "?");
+            fName = StringUtils.substringAfterLast(fName, "/");
+            savePath = savePath + (StringUtils.endsWith(savePath, "/") ? "" : "/") + fName;
+        }
+        @Cleanup BufferedInputStream bufferedInputStream = new BufferedInputStream(in);
+        @Cleanup FileOutputStream fileOutputStream = new FileOutputStream(savePath);
+        byte[] b = new byte[1024];
+        while ((bufferedInputStream.read(b)) != -1) {
+            fileOutputStream.write(b);// 写入数据
+        }
+        //TODO
     }
 }

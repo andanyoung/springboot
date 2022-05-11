@@ -3,12 +3,14 @@ package an.common.http;
 import an.common.http.core.Method;
 import an.common.http.core.Pair;
 import an.common.http.entity.R;
+import lombok.Cleanup;
 import lombok.SneakyThrows;
 import okhttp3.Call;
+import okhttp3.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,5 +92,49 @@ class HttpRequestTest {
                 .execute(R.class);
         System.out.println("authorization = " + authorization);
     }
+
+
+    @SneakyThrows
+    @Test
+    void upload() {
+        String url = "http://192.168.1.12:9100/system/upload/test";
+
+        Object authorization = HttpUtil.postBuilder(url)
+                .mediaType(MediaTypeEnum.FORM_DATA)
+                .addHeader("Authorization",
+                        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NTIzNTA2NDAsInVzZXJJZCI6MX0.idSAdHULHlVKZapcREsV6pg7kDcda70D8vSyzl_ubiY")
+                .addHeader("1", 2)
+                .addForm("file", new File("C:\\Users\\andanyang\\Pictures\\src=http___wx2.sinaimg.cn_mw690_005YeltJly1gyiopv8b43j30ss0ssdoc.jpg&refer=http___wx2.sinaimg.jpg"))
+                .execute(R.class);
+        System.out.println("authorization = " + authorization);
+    }
+
+    //upload/1/test/1523977637482352642.jpg
+
+    @SneakyThrows
+    @Test
+    void download() {
+        String url = "http://192.168.1.12:9100/system/upload/test";
+
+        ResponseBody execute = HttpUtil.getBuilder("https://img-blog.csdnimg.cn/20200709161622641.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Fnb25pZTIwMTIxOA==,size_16,color_FFFFFF,t_70")
+                .execute();
+
+        @Cleanup InputStream inputStream = execute.byteStream();
+        @Cleanup BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        @Cleanup FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\andanyang\\Pictures\\12\\123.jpg");
+        byte[] b = new byte[1024];
+        while ((bufferedInputStream.read(b)) != -1) {
+            fileOutputStream.write(b);// 写入数据
+        }
+        fileOutputStream.flush();
+    }
+
+    @Test
+    void down() throws IOException {
+
+        String imgUrl = "https://img-blog.csdnimg.cn/20200709161622641.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Fnb25pZTIwMTIxOA==,size_16,color_FFFFFF,t_70";
+        HttpUtil.down(imgUrl, "C:\\Users\\andanyang\\Pictures\\123\\12");
+    }
+
 
 }
