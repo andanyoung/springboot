@@ -146,10 +146,14 @@ public abstract class AbstractHttpRequest {
      * @param formParams   The form parameters
      * @return The HTTP request
      */
-    public Request buildRequest(String url, Method method, MediaTypeEnum mediaType,
+    public Request buildRequest(String url,
+                                Method method,
+                                MediaTypeEnum mediaType,
                                 Object body,
                                 Map<String, Object> formParams,
                                 Map<String, Object> headerParams) {
+
+        //handleBeforeBuildRequest()
         if (!StringUtils.startsWithIgnoreCase(url, "http")) {
             url = buildUrl(url, null, null);
         }

@@ -14,13 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public abstract class AbstractRobotRequest {
-    @JSONField(serialize = false)
-    private String accessToken;
     private At at;
-
-    public AbstractRobotRequest(String accessToken) {
-        this.accessToken = accessToken;
-    }
 
     @JSONField(name = "msgtype", serialzeFeatures = SerializerFeature.WriteEnumUsingToString)
     abstract public MsgType getMsgType();
