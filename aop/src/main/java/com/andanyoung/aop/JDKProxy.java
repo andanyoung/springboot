@@ -62,6 +62,9 @@ public class JDKProxy {
         });
     }
 
+    /**
+     * 自定义方法拦截器
+     */
     class JDKProxyInvocationHandler implements InvocationHandler,JDKProxyInterface{
 
         @Override
