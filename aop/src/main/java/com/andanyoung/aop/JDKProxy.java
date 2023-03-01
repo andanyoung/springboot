@@ -77,6 +77,17 @@ public class JDKProxy {
             return name;
         }
 
+        /**
+         *
+         * @param proxy 当前代理的实例对象
+         *
+         * @param method  当前执行方法
+         *
+         * @param args 执行方法参数
+         *
+         * @return
+         * @throws Throwable
+         */
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             System.out.println("JDKProxyInvocationHandler 前置拦截");
