@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="
+	    http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd
+">
+
+	<!--循环依赖问题-->
+	<bean id="adminBean" class="com.admin4j.spring.AdminBean">
+		<property name="ItBean" ref="itBean"/>
+	</bean>
+	<bean id="itBean" class="com.admin4j.spring.ItBean">
+		<property name="AdminBean" ref="adminBean"/>
+	</bean>
+
+
+	<!--<bean id="myBeanFactoryPostProcessor" class="com.admin4j.spring.MyBeanFactoryPostProcessor"/>
+	<bean id="myBeanPostProcessor" class="com.admin4j.spring.MyBeanPostProcessor"/>-->
+
+
+	<!--<bean id="AdminBean" class="com.admin4j.spring.AdminBean">
+	</bean>-->
+
+
+	<!--aop配置-->
+	<!--横切逻辑-->
+	<!--<bean id="logUtils" class="com.admin4j.spring.LogUtils">
+	</bean>
+
+	<aop:config>
+		<aop:aspect ref="logUtils">
+			<aop:before method="beforeMethod" pointcut="execution(public void com.admin4j.spring.AdminBean.print())"/>
+		</aop:aspect>
+	</aop:config>-->
+
+
+</beans>
